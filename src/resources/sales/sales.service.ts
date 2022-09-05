@@ -1,24 +1,49 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma, Sales } from '@prisma/client';
+import { Prisma, Sale } from '@prisma/client';
 import { PrismaService } from 'src/database/prisma/prisma.service';
 import { CreateSaleDto } from './dto/create-sale.dto';
 import { UpdateSaleDto } from './dto/update-sale.dto';
 
 @Injectable()
 export class SalesService {
-  private readonly salesRepository: Prisma.SalesDelegate<Sales>;
+  private readonly salesRepository: Prisma.SaleDelegate<Sale>;
 
   constructor(prisma: PrismaService) {
-    this.salesRepository = prisma.sales;
+    this.salesRepository = prisma.sale;
   }
 
-  create(data: CreateSaleDto) {
-    return this.salesRepository.create({ data });
+  create({ buyerAddress, buyerName, productId }: CreateSaleDto) {
+    const products = productId.map((product) => {
+      return { id: product.id, amount: product.amount };
+    });
+
+    return this.salesRepository.create({
+      data: {
+        buyerName,
+        buyerAddress,
+        productSale: {
+          create: products.map((product) => {
+            return {
+              amount: product.amount,
+              product: {
+                connect: { id: product.id },
+              },
+            };
+          }),
+        },
+      },
+    });
   }
 
   findAll() {
+    const select = {
+      buyerAddress: true,
+      buyerName: true,
+      productSale: true,
+    };
+
     return this.salesRepository.findMany({
-      select: { amount: true, product: true },
+      select,
     });
   }
 

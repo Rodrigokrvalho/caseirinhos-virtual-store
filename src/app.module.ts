@@ -5,9 +5,10 @@ import { AppService } from './app.service';
 import { HttpExceptionFilter } from './common/filters/HttpExeption.filter';
 import { ProductsModule } from './resources/products/products.module';
 import { SalesModule } from './resources/sales/sales.module';
+import { AvaluationsModule } from './resources/avaluations/avaluations.module';
 
 @Module({
-  imports: [ProductsModule, SalesModule],
+  imports: [ProductsModule, SalesModule, AvaluationsModule],
   controllers: [AppController],
   providers: [
     AppService,
